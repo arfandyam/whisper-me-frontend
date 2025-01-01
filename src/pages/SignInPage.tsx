@@ -102,11 +102,7 @@ export default function SignIn() {
             />
           </div>
           <div className="flex flex-col space-y-1.5">
-            <Button
-              variant="default"
-              className="border-2 text-left">
-              Log In
-            </Button>
+            <Button variant="default" className="border-2 text-left">Log In</Button>
           </div>
         </div>
       </form>
@@ -117,7 +113,14 @@ export default function SignIn() {
         </span>
         <hr className="flex-grow border-t border-green-300" />
       </div>
-      <Button variant="outline" className="border-2 text-left mr-0"><img src="../src/assets/google.png" className="w-5 mr-3" alt="" />Sign Up With Google</Button>
+      <Button variant="outline" className="border-2 text-left mr-0"><img src="../src/assets/google.png" className="w-5 mr-3" alt="" />Sign In With Google</Button>
+      <div className="flex items-center">
+        <hr className="flex-grow border-t border-green-300" />
+        <span className="px-3 text-green-500">
+          <CardDescription className="text-center">Don't have an account?<a href="/SignUp" className="ml-1 text-navy">Create Account</a></CardDescription>
+        </span>
+        <hr className="flex-grow border-t border-green-300" />
+      </div>
     </>
   )
 }
