@@ -5,6 +5,7 @@ import DetailQuestion from './pages/DetailQuestionPage';
 import AddResponse from './pages/AddResponsePage';
 import Navbar from '../src/layout/Navbar';
 import SignUpPage from './pages/SignUpPage';
+import PrivateRoute from './PrivateRoute';
 
 function App() {
   return (
@@ -13,10 +14,22 @@ function App() {
       <div>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/SignUp" element={<SignUpPage />} />
-          <Route path="/Questions" element={<Questions />} />
-          <Route path="/DetailQuestion" element={<DetailQuestion />} />
-          <Route path="/AddResponse" element={<AddResponse />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/questions" element={
+            <PrivateRoute>
+              <Questions />
+            </PrivateRoute>
+          } />
+          <Route path="/detailquestion" element={
+            <PrivateRoute>
+              <DetailQuestion />
+            </PrivateRoute>
+          } />
+          <Route path="/addresponse" element={
+            <PrivateRoute>
+              <AddResponse />
+            </PrivateRoute>
+          } />
         </Routes>
       </div>
     </Router>

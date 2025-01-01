@@ -144,7 +144,7 @@ export default function SignUpPage() {
                   </span>
                   <hr className="flex-grow border-t border-green-300" />
                 </div>
-                <Button variant="outline" className="w-11/12 border-2 text-left mr-0"><img src="../src/assets/google.png" className="w-5 mr-3" alt="" />Sign In With Google</Button>
+                <Button variant="outline" className="w-11/12 border-2 text-left mr-0"><img src="../src/assets/google.png" className="w-5 mr-3" alt="" />Sign Up With Google</Button>
               </div>
             </form>
           </CardContent>
