@@ -11,3 +11,9 @@ export interface UserAuthResponse {
     access_token_exp: number
     refresh_token: string
 }
+
+export interface UpdateAccessTokenResponse {
+    access_token: string
+    access_token_iat: number
+    access_token_exp: number
+}

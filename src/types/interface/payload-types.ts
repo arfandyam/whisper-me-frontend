@@ -14,3 +14,9 @@ export interface UserRegistration {
 export interface LogoutUser {
     refreshToken : string | undefined
 }
+
+export interface AccessTokenInfo {
+    accessToken: string
+    accessTokenIat: number
+    accessTokenExp: number
+}
