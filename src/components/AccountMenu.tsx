@@ -3,7 +3,7 @@ import { User } from "@/types/interface/auth-provider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { CircleUserRound, ClipboardList, LogOut } from "lucide-react";
 import { useAuth } from "@/AuthProvider";
-import { mapLogoutPayload } from "@/lib/mapper/account_logout";
+import { mapRefreshTokenPayload } from "@/lib/mapper/account_logout";
 import { useNavigate } from "react-router-dom";
 import { LogoutUser } from "@/types/interface/payload-types";
 
@@ -19,7 +19,7 @@ export default function AccountMenu({ user }: AccountMenuProps) {
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/auth`, {
         method: "DELETE",
-        body: JSON.stringify(mapLogoutPayload({ refreshToken }))
+        body: JSON.stringify(mapRefreshTokenPayload(refreshToken))
       })
 
       if (response.status == 200) {

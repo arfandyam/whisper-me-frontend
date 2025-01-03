@@ -1,7 +1,5 @@
-import { LogoutUser } from "@/types/interface/payload-types";
-
-export const mapLogoutPayload = ({
+export const mapRefreshTokenPayload = (
     refreshToken
-}: LogoutUser) => ({
+: string | undefined) => ({
     refresh_token: refreshToken,
 });
