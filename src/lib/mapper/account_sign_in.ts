@@ -12,6 +12,8 @@ export const mapSignInField = ({
     access_token_iat,
     access_token_exp,
     refresh_token,
+    refresh_token_iat,
+    refresh_token_exp
 }: UserAuthResponse) => ({
     id,
     username,
@@ -24,4 +26,6 @@ export const mapSignInField = ({
     accessTokenIat: access_token_iat,
     accessTokenExp: access_token_exp,
     refreshToken: refresh_token,
+    refreshTokenIat: refresh_token_iat,
+    refreshTokenExp: refresh_token_exp
 });

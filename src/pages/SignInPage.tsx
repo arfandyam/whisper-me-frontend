@@ -19,6 +19,7 @@ import { useAuth } from "@/AuthProvider"
 import { mapSignInField } from "@/lib/mapper/account_sign_in"
 import { useNavigate } from "react-router-dom"
 import { User } from "@/types/interface/auth-provider"
+import { logIn } from "@/api/sessions/session"
 
 export default function SignIn() {
   const navigate = useNavigate()
@@ -28,20 +29,8 @@ export default function SignIn() {
     username,
     password
   }: AuthUser) {
-    const userCredentials = JSON.stringify({
-      username,
-      password
-    });
-
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/auth`, {
-        body: userCredentials,
-        method: "POST",
-        headers: {
-          'Content-Type': "application/json"
-        },
-      })
-
+      const response = await logIn({ username, password })
       const { data } = await response.json()
       console.log("data:", data)
 

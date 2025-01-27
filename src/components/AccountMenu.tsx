@@ -3,9 +3,9 @@ import { User } from "@/types/interface/auth-provider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { CircleUserRound, ClipboardList, LogOut } from "lucide-react";
 import { useAuth } from "@/AuthProvider";
-import { mapRefreshTokenPayload } from "@/lib/mapper/account_logout";
 import { useNavigate } from "react-router-dom";
 import { LogoutUser } from "@/types/interface/payload-types";
+import { logOut } from "@/api/sessions/session"
 
 interface AccountMenuProps {
   user: User | null
@@ -15,12 +15,9 @@ export default function AccountMenu({ user }: AccountMenuProps) {
   const navigate = useNavigate();
   const { setLogOutSession } = useAuth();
 
-  async function Logout({ refreshToken }: LogoutUser) {
+  async function SignOut({ refreshToken }: LogoutUser) {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/auth`, {
-        method: "DELETE",
-        body: JSON.stringify(mapRefreshTokenPayload(refreshToken))
-      })
+      const response = await logOut(refreshToken);
 
       if (response.status == 200) {
         setLogOutSession()
@@ -53,7 +50,7 @@ export default function AccountMenu({ user }: AccountMenuProps) {
             </DropdownMenuItem>
             <DropdownMenuItem>
               <LogOut className="mr-2 h-4 w-4" />
-              <Button variant="outline" onClick={() => Logout({ refreshToken: user?.refreshToken })}>Log Out</Button>
+              <Button variant="outline" onClick={() => SignOut({ refreshToken: user?.refreshToken })}>Log Out</Button>
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>

@@ -10,10 +10,19 @@ export interface UserAuthResponse {
     access_token_iat: number
     access_token_exp: number
     refresh_token: string
+    refresh_token_iat: number
+    refresh_token_exp: number
 }
 
-export interface UpdateAccessTokenResponse {
+export interface UpdateAccessTokenJSON {
     access_token: string
     access_token_iat: number
     access_token_exp: number
+}
+
+export interface TSessionRotationResponse {
+    status: string
+    message: string
+    data?: UpdateAccessTokenJSON
+    description?: string
 }

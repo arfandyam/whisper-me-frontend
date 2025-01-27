@@ -1,50 +1,66 @@
 import React, { createContext, useContext, useState } from "react";
 import { AuthContextType, User } from "./types/interface/auth-provider";
 import { AccessTokenInfo } from "./types/interface/payload-types";
-import { mapRefreshTokenPayload } from "./lib/mapper/account_logout";
 import { mapAccessTokenInfo } from "./lib/mapper/update_access_token";
+import { TSessionRotationResponse } from "./types/interface/response-types";
+import { logOut, updateAccessToken } from "./api/sessions/session";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const initialUser: User | null = JSON.parse(sessionStorage.getItem("user") || "null");
+  const initialUser: User | null = JSON.parse(localStorage.getItem("user") || "null");
 
   const [user, setUser] = useState<User | null>(initialUser);
 
   const setSignInSession = (userData: User) => {
     setUser(userData);
-    sessionStorage.setItem("user", JSON.stringify(userData))
+    localStorage.setItem("user", JSON.stringify(userData))
   };
 
   const setLogOutSession = () => {
     setUser(null);
-    sessionStorage.removeItem("user");
+    localStorage.removeItem("user");
   }
 
   const setSessionRotation = async (userData: User | null): Promise<User | null> => {
+    console.log("userData:", userData)
+    if (userData && Date.now() > (userData.refreshTokenExp * 1000)) {
+      try {
+        logOut(userData.refreshToken);
+        setUser(null);
+        localStorage.removeItem("user");
+      } catch (e) {
+        console.error("Failed to logout. Error:", e)
+      }
+
+      return null
+    } 
     if (userData && Date.now() > (userData?.accessTokenExp * 1000)) {
       try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/auth`, {
-          method: "PUT",
-          body: JSON.stringify(mapRefreshTokenPayload(userData?.refreshToken))
-        })
+        const response = await updateAccessToken(userData)
+        const sessionRotationResponse: TSessionRotationResponse = await response.json();
 
-        const { data } = await response.json();
-        console.log("data:", data)
-
-        if (response.status == 200) {
+        if (response.status == 200 && sessionRotationResponse.data) {
+          const { data } = sessionRotationResponse
           const newAccessTokenInfo: AccessTokenInfo = mapAccessTokenInfo(data);
           userData.accessToken = newAccessTokenInfo.accessToken;
           userData.accessTokenIat = newAccessTokenInfo.accessTokenIat;
           userData.accessTokenExp = newAccessTokenInfo.accessTokenExp;
           setSignInSession(userData);
           return userData
-        } else {
-          console.error("Failed to refresh token. Response status:", response.status);
+        } else if (response.status == 400) {
+          console.error(`Failed to refresh access token. message: ${sessionRotationResponse.message}`);
+          logOut(userData.refreshToken);
+          setUser(null);
+          localStorage.removeItem("user");
+          return null
         }
       } catch (error) {
         console.error("Error in token rotation:", error);
+        logOut(userData.refreshToken);
+        setUser(null);
+        localStorage.removeItem("user");
+        return null
       }
     }
     return userData

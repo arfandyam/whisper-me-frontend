@@ -10,6 +10,8 @@ export interface User {
     accessTokenIat: number
     accessTokenExp: number
     refreshToken: string
+    refreshTokenIat: number
+    refreshTokenExp: number
 }
 
 export interface AuthContextType {
