@@ -15,30 +15,55 @@ import { ChevronLeft, ChevronRight, Copy, Plus } from 'lucide-react'
 import { Textarea } from "@/components/ui/textarea"
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "@/AuthProvider"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { findQuestionsByUserId } from "@/api/questions/questions"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { formatDate } from "@/lib/utils"
 
 export default function Questions() {
   const navigate = useNavigate();
-  const { user, sessionChecked } = useAuth();
+  const { user, sessionChecked, checkSession } = useAuth();
   const [cursor, setCursor] = useState<string | null>(null);
-  const { data: questions, isLoading, error } = useQuery(
-    ["questions", user?.id, user?.accessToken],
-    () => findQuestionsByUserId(user?.id, user?.accessToken, cursor),
+  const queryClient = useQueryClient();
+  // const { data: questions, isLoading, error } = useQuery(
+  //   ["questions", user?.id, cursor],
+  //   () => findQuestionsByUserId(user?.id, cursor),
+  //   {
+  //     enabled: !!user?.id && sessionChecked,
+  //     retry: false,
+  //     refetchOnWindowFocus: false,
+  //   }
+  // )
+  const { data: questions, isLoading, error, refetch } = useQuery(
+    ["questions", user?.id, user?.accessToken, cursor],
+    async () => {
+      await checkSession();
+      return findQuestionsByUserId(user?.id, user?.accessToken, cursor)
+    },
     {
       enabled: !!user?.id && sessionChecked,
-      retry: false
+      retry: false,
+      refetchOnWindowFocus: false,
     }
   )
 
   console.log("user dari Questions:", user)
   console.log("questions: ", questions)
 
-  if (user == null){
+  if (user == null) {
     navigate("/");
   }
+
+  const refreshData = async () => {
+    await checkSession();   // ✅ Ensure latest access token
+    refetch();              // ✅ Fetch data with latest token
+};
+
+  useEffect(() => {
+    if (sessionChecked) {
+      queryClient.invalidateQueries(["questions"]);
+    }
+  }, [sessionChecked])
 
   if (!sessionChecked || isLoading) {
     return <div>Loading...</div>;
@@ -122,7 +147,8 @@ export default function Questions() {
             {questions?.meta.prev_cursor ? (
               <Button size="sm" className="absolute left-0 px-3 text-black bg-white border-2 hover:bg-beige"
                 onClick={() => {
-                  setCursor(questions.meta.prev_cursor)
+                  setCursor(questions.meta.prev_cursor);
+                  refreshData();
                 }}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -131,7 +157,8 @@ export default function Questions() {
             {questions?.meta.next_cursor ? (
               <Button size="sm" className="absolute right-0 px-3 text-black bg-white border-2 hover:bg-beige"
                 onClick={() => {
-                  setCursor(questions.meta.next_cursor)
+                  setCursor(questions.meta.next_cursor);
+                  refreshData();
                 }}
               >
                 <ChevronRight className="h-4 w-4" />

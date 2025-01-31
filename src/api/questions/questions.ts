@@ -9,10 +9,13 @@ export const findQuestionsByUserId = async (userId: string | undefined, accessTo
         url = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question`
     }
     // const user: User = JSON.parse(localStorage.getItem("user") || "null");
+    // console.log("Di akses oleh react query accesstoken:", user.accessToken)
     console.log("Di akses oleh react query accesstoken:", accessToken)
+    console.log("Di akses oleh react query cursor:", cursor)
     const response = await fetch(url, {
         method: "GET",
         headers: {
+            // Authorization: `Bearer ${user.accessToken}`,
             Authorization: `Bearer ${accessToken}`,
         }
     });
