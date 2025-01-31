@@ -16,7 +16,7 @@ export interface User {
 
 export interface AuthContextType {
     user: User | null
-    setSessionRotation: (userData: User | null) => Promise<User | null>
+    sessionChecked: boolean
     setSignInSession: (userData: User) => void;
     setLogOutSession: () => void;
 }

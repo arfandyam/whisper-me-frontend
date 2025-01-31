@@ -4,7 +4,7 @@ import { useAuth } from "./AuthProvider"
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user } = useAuth();
 
-    console.log("user:", user)
+    console.log("user dari PrivateRoute:", user)
     if (!user) {
         return <Navigate to="/"/>
     }

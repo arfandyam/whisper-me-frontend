@@ -11,16 +11,39 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Copy, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Copy, Plus } from 'lucide-react'
 import { Textarea } from "@/components/ui/textarea"
-import { To, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from "@/AuthProvider"
+import { useState } from "react"
+import { findQuestionsByUserId } from "@/api/questions/questions"
+import { useQuery } from "@tanstack/react-query"
+import { formatDate } from "@/lib/utils"
 
 export default function Questions() {
   const navigate = useNavigate();
+  const { user, sessionChecked } = useAuth();
+  const [cursor, setCursor] = useState<string | null>(null);
+  const { data: questions, isLoading, error } = useQuery(
+    ["questions", user?.id, user?.accessToken],
+    () => findQuestionsByUserId(user?.id, user?.accessToken, cursor),
+    {
+      enabled: !!user?.id && sessionChecked,
+      retry: false
+    }
+  )
 
-  const handleButtonClick = (path: To) => {
-    navigate(path);
-  };
+  console.log("user dari Questions:", user)
+  console.log("questions: ", questions)
+
+  if (user == null){
+    navigate("/");
+  }
+
+  if (!sessionChecked || isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (error instanceof Error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="h-screen mt-[60px] bg-beige relative">
@@ -75,49 +98,45 @@ export default function Questions() {
               </DialogContent>
             </Dialog>
           </div>
-          <div>
-            <div className="bg-white mt-4 border-2 mx-auto p-2 mb-4 rounded-lg shadow-md">
-              <div className="mb-3">
-                <h2 className="font-bold text-2xl mb-3">What do you think about flat earth?</h2>
-                <a href="">https:// blabalabala</a>
-                <Button type="submit" size="sm" className="ml-3 px-3 text-black bg-white border-2 hover:text-white">
-                  <span className="sr-only">Copy</span>
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <div className="flex justify-between items-end mt-3">
-                  <p className="text-black/[0.5]">10 June 2024</p>
-                  <Button variant="outline" className="bg-navy text-white hover:bg-navy hover:text-white" onClick={() => handleButtonClick('/DetailQuestion')}>Open</Button>
+          {questions ? (
+            <div>
+              {questions.data.map((question) => (
+                <div className="bg-white mt-4 border-2 mx-auto p-2 mb-4 rounded-lg shadow-md">
+                  <div className="mb-3">
+                    <h2 className="font-bold text-2xl mb-3">{question.topic}</h2>
+                    <a href={`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/q/${question.url_key}`}>{`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/q/${question.url_key}`}</a>
+                    <Button type="submit" size="sm" className="ml-3 px-3 text-black bg-white border-2 hover:text-white">
+                      <span className="sr-only">Copy</span>
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <div className="flex justify-between items-end mt-3">
+                      <p className="text-black/[0.5]">{formatDate(question.created_at)}</p>
+                      <Button variant="outline" className="bg-navy text-white hover:bg-navy hover:text-white" onClick={() => navigate("/DetailQuestion")}>Open</Button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-            <div className="bg-white mt-4 border-2 mx-auto p-2 mb-4 rounded-lg shadow-md">
-              <div className="mb-3">
-                <h2 className="font-bold text-2xl mb-3">What do you think about flat earth?</h2>
-                <a href="">https:// blabalabala</a>
-                <Button type="submit" size="sm" className="ml-3 px-3 text-black bg-white border-2 hover:text-white">
-                  <span className="sr-only">Copy</span>
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <div className="flex justify-between items-end mt-3">
-                  <p className="text-black/[0.5]">10 June 2024</p>
-                  <Button variant="outline" className="bg-navy hover:bg-dark-orange hover:text-navy text-white hover:bg-navy hover:text-white" onClick={() => handleButtonClick('/DetailQuestion')}>Open</Button>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white mt-4 border-2 mx-auto p-2 mb-4 rounded-lg shadow-md">
-              <div className="mb-3">
-                <h2 className="font-bold text-2xl mb-3">What do you think about flat earth?</h2>
-                <a href="">https:// blabalabala</a>
-                <Button type="submit" size="sm" className="ml-3 px-3 text-black bg-white border-2 hover:text-white">
-                  <span className="sr-only">Copy</span>
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <div className="flex justify-between items-end mt-3">
-                  <p className="text-black/[0.5]">10 June 2024</p>
-                  <Button variant="outline" className="bg-navy text-white hover:bg-navy hover:text-white" onClick={() => handleButtonClick('/DetailQuestion')}>Open</Button>
-                </div>
-              </div>
-            </div>
+          ) : null}
+          <div className="relative items-center p-4">
+            {questions?.meta.prev_cursor ? (
+              <Button size="sm" className="absolute left-0 px-3 text-black bg-white border-2 hover:bg-beige"
+                onClick={() => {
+                  setCursor(questions.meta.prev_cursor)
+                }}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            ) : null}
+            {questions?.meta.next_cursor ? (
+              <Button size="sm" className="absolute right-0 px-3 text-black bg-white border-2 hover:bg-beige"
+                onClick={() => {
+                  setCursor(questions.meta.next_cursor)
+                }}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            ) : null}
           </div>
         </div>
       </div>

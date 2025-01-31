@@ -19,7 +19,7 @@ function App() {
             <PrivateRoute>
               <Questions />
             </PrivateRoute>
-          } />
+          }/>
           <Route path="/detailquestion" element={
             <PrivateRoute>
               <DetailQuestion />
