@@ -15,9 +15,6 @@ export interface User {
 }
 
 export interface AuthContextType {
-    user: User | null
-    sessionChecked: boolean
-    checkSession: () => void;
     setSignInSession: (userData: User) => void;
     setLogOutSession: () => void;
 }

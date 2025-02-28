@@ -8,11 +8,11 @@ import {
 } from "@/components/ui/dialog"
 import MaxWidthWrapper from '@/components/MaxWidthWrapper';
 import SignIn from '@/pages/SignInPage';
-import { useAuth } from '@/AuthProvider';
 import AccountMenu from '@/components/AccountMenu';
+import { User } from '@/types/interface/auth-provider';
 
 export default function Navbar() {
-  const { user } = useAuth()
+  const user: User = JSON.parse(localStorage.getItem("user") || "null");
 
   return (
     <>

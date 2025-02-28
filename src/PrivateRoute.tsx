@@ -1,8 +1,7 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "./AuthProvider"
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { user } = useAuth();
+    const user = JSON.parse(localStorage.getItem("user") || "null");
 
     console.log("user dari PrivateRoute:", user)
     if (!user) {
