@@ -19,3 +19,14 @@ export interface FindQuestionsByUserIdResponse {
     data: QuestionsData[]
     meta: QuestionsMeta
 }
+
+export interface IdResponse {
+    id: string
+}
+
+export interface CreateQuestionResponse {
+    status: string
+    message: string
+    data: IdResponse
+    description?: string
+}

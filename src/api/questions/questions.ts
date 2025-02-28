@@ -1,15 +1,17 @@
 // import { User } from "@/types/interface/auth-provider";
+import { User } from "@/types/interface/auth-provider";
+import { CreateQuestionInterface } from "@/types/interface/questions/payload-types";
 import { FindQuestionsByUserIdResponse } from "@/types/interface/questions/response-types";
 
-export const findQuestionsByUserId = async (userId: string | undefined, accessToken: string | undefined, cursor: string | null): Promise<FindQuestionsByUserIdResponse> => {
+export const findQuestionsByUserId = async (userId: string | undefined, cursor: string | null): Promise<FindQuestionsByUserIdResponse> => {
     let url;
+    const user: User | null = JSON.parse(localStorage.getItem("user") || "null");
+    const accessToken = user?.accessToken
     if (cursor != null) {
         url = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question?cursor=${cursor}`
     } else {
         url = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question`
     }
-    // const user: User = JSON.parse(localStorage.getItem("user") || "null");
-    // console.log("Di akses oleh react query accesstoken:", user.accessToken)
     console.log("Di akses oleh react query accesstoken:", accessToken)
     console.log("Di akses oleh react query cursor:", cursor)
     const response = await fetch(url, {
@@ -27,4 +29,18 @@ export const findQuestionsByUserId = async (userId: string | undefined, accessTo
     }
 
     return questions;
+}
+
+export const createQuestion = async ({ topic, question }: CreateQuestionInterface, accessToken: string | undefined): Promise<Response> => {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question`, {
+        method: "POST",
+        body: JSON.stringify({ topic, question }),
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+        }
+    });
+
+    return response;
+
 }

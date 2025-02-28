@@ -1,53 +1,36 @@
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Copy, Plus } from 'lucide-react'
-import { Textarea } from "@/components/ui/textarea"
+import { ChevronLeft, ChevronRight, Copy } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from "@/AuthProvider"
-import { useEffect, useState } from "react"
+// import { useAuth } from "@/AuthProvider"
+import { useState } from "react"
 import { findQuestionsByUserId } from "@/api/questions/questions"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { formatDate } from "@/lib/utils"
+import CreateQuestionModal from "./CreateQuestionModal";
+import { checkSession } from "@/api/sessions/session";
+import { User } from "@/types/interface/auth-provider";
 
 export default function Questions() {
   const navigate = useNavigate();
-  const { user, sessionChecked, checkSession } = useAuth();
+  // const { user, sessionChecked, checkSession } = useAuth();
   const [cursor, setCursor] = useState<string | null>(null);
-  const queryClient = useQueryClient();
-  // const { data: questions, isLoading, error } = useQuery(
-  //   ["questions", user?.id, cursor],
-  //   () => findQuestionsByUserId(user?.id, cursor),
-  //   {
-  //     enabled: !!user?.id && sessionChecked,
-  //     retry: false,
-  //     refetchOnWindowFocus: false,
-  //   }
-  // )
+  // const queryClient = useQueryClient();
+  let user: User | null = JSON.parse(localStorage.getItem("user") || "null");
   const { data: questions, isLoading, error, refetch } = useQuery(
-    ["questions", user?.id, user?.accessToken, cursor],
+    ["questions", user?.id, cursor],
     async () => {
-      await checkSession();
-      return findQuestionsByUserId(user?.id, user?.accessToken, cursor)
+      user = await checkSession(user);
+      return findQuestionsByUserId(user?.id, cursor)
     },
     {
-      enabled: !!user?.id && sessionChecked,
+      enabled: !!user?.id,
       retry: false,
       refetchOnWindowFocus: false,
     }
   )
 
   console.log("user dari Questions:", user)
+  console.log("error dari usequery: ", error)
   console.log("questions: ", questions)
 
   if (user == null) {
@@ -55,17 +38,17 @@ export default function Questions() {
   }
 
   const refreshData = async () => {
-    await checkSession();   // ✅ Ensure latest access token
-    refetch();              // ✅ Fetch data with latest token
-};
+    // await checkSession();
+    refetch();
+  };
 
-  useEffect(() => {
-    if (sessionChecked) {
-      queryClient.invalidateQueries(["questions"]);
-    }
-  }, [sessionChecked])
+  // useEffect(() => {
+  //   if (sessionChecked) {
+  //     queryClient.invalidateQueries(["questions"]);
+  //   }
+  // }, [sessionChecked])
 
-  if (!sessionChecked || isLoading) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
   if (error instanceof Error) return <div>Error: {error.message}</div>;
@@ -79,50 +62,7 @@ export default function Questions() {
           <div className="w-[200px] border-t-[4px] border-navy mx-auto"></div>
         </div>
         <div className="flex-col flex w-max w-8/12 mx-auto">
-          <div className="flex justify-end">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="bg-navy text-white right-0"><Plus className="mr-3" />Create New Question</Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Create Question</DialogTitle>
-                  <DialogDescription>
-                    Share your link and anyone will be able to view this.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid flex-1 gap-2">
-                  <Textarea placeholder="Type your message here." />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="grid flex-1 gap-2">
-                    <Label htmlFor="link" className="sr-only">
-                      Link
-                    </Label>
-                    <Input
-                      id="link"
-                      defaultValue="https://ui.shadcn.com/docs/installation"
-                      readOnly
-                    />
-                  </div>
-                  <Button type="submit" size="sm" className="px-3 bg-navy hover:bg-dark-orange hover:text-navy">
-                    <span className="sr-only">Copy</span>
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-                <DialogFooter className="sm:justify-between">
-                  <DialogClose asChild>
-                    <Button type="button" variant="secondary">
-                      Close
-                    </Button>
-                  </DialogClose>
-                  <Button type="button" className="bg-dark-orange hover:dark-dark-orange" variant="secondary">
-                    Create
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
+          <CreateQuestionModal/>
           {questions ? (
             <div>
               {questions.data.map((question) => (
@@ -130,7 +70,9 @@ export default function Questions() {
                   <div className="mb-3">
                     <h2 className="font-bold text-2xl mb-3">{question.topic}</h2>
                     <a href={`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/q/${question.url_key}`}>{`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/q/${question.url_key}`}</a>
-                    <Button type="submit" size="sm" className="ml-3 px-3 text-black bg-white border-2 hover:text-white">
+                    <Button size="sm" className="ml-3 px-3 text-black bg-white border-2 hover:text-white"
+                      onClick={async () => await navigator.clipboard.writeText(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/q/${question.url_key}`)}
+                    >
                       <span className="sr-only">Copy</span>
                       <Copy className="h-4 w-4" />
                     </Button>
