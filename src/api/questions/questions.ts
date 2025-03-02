@@ -1,7 +1,7 @@
 // import { User } from "@/types/interface/auth-provider";
 import { User } from "@/types/interface/auth-provider";
 import { CreateQuestionInterface } from "@/types/interface/questions/payload-types";
-import { FindQuestionsByUserIdResponse } from "@/types/interface/questions/response-types";
+import { FindQuestionsBySlug, FindQuestionsByUserIdResponse } from "@/types/interface/questions/response-types";
 
 export const findQuestionsByUserId = async (userId: string | undefined, cursor: string | null): Promise<FindQuestionsByUserIdResponse> => {
     let url;
@@ -17,7 +17,6 @@ export const findQuestionsByUserId = async (userId: string | undefined, cursor: 
     const response = await fetch(url, {
         method: "GET",
         headers: {
-            // Authorization: `Bearer ${user.accessToken}`,
             Authorization: `Bearer ${accessToken}`,
         }
     });
@@ -29,6 +28,26 @@ export const findQuestionsByUserId = async (userId: string | undefined, cursor: 
     }
 
     return questions;
+}
+
+export const findQuestionsBySlug = async (slug: string | undefined): Promise<FindQuestionsBySlug> => {
+    const user: User | null = JSON.parse(localStorage.getItem("user") || "null");
+    const accessToken = user?.accessToken;
+
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/${slug}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        }
+    })
+
+    const question: FindQuestionsBySlug = await response.json();
+    if (!response.ok) {
+        console.error("Failed to fetch questions")
+    }
+
+    return question;
 }
 
 export const createQuestion = async ({ topic, question }: CreateQuestionInterface, accessToken: string | undefined): Promise<Response> => {

@@ -1,3 +1,5 @@
+import { StatusMessageResponse } from "../response-types"
+
 export interface QuestionsData {
     id: string
     user_id: string
@@ -13,20 +15,22 @@ export interface QuestionsMeta {
     prev_cursor: string
 }
 
-export interface FindQuestionsByUserIdResponse {
-    status: string
-    message: string
-    data: QuestionsData[]
-    meta: QuestionsMeta
-}
-
 export interface IdResponse {
     id: string
 }
 
-export interface CreateQuestionResponse {
-    status: string
-    message: string
+// FindQuestionsBySlug
+export interface FindQuestionsBySlug {
+    data: QuestionsData
+}
+
+// FindQuestionsByUserId
+export interface FindQuestionsByUserIdResponse extends StatusMessageResponse {
+    data: QuestionsData[]
+    meta: QuestionsMeta
+}
+
+export interface CreateQuestionResponse extends StatusMessageResponse {
     data: IdResponse
     description?: string
 }

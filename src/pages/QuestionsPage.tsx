@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, Copy } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
-// import { useAuth } from "@/AuthProvider"
 import { useState } from "react"
 import { findQuestionsByUserId } from "@/api/questions/questions"
 import { useQuery } from "@tanstack/react-query"
@@ -12,10 +11,10 @@ import { User } from "@/types/interface/auth-provider";
 
 export default function Questions() {
   const navigate = useNavigate();
-  // const { user, sessionChecked, checkSession } = useAuth();
   const [cursor, setCursor] = useState<string | null>(null);
-  // const queryClient = useQueryClient();
+
   let user: User | null = JSON.parse(localStorage.getItem("user") || "null");
+
   const { data: questions, isLoading, error, refetch } = useQuery(
     ["questions", user?.id, cursor],
     async () => {
@@ -29,24 +28,13 @@ export default function Questions() {
     }
   )
 
-  console.log("user dari Questions:", user)
-  console.log("error dari usequery: ", error)
-  console.log("questions: ", questions)
-
   if (user == null) {
     navigate("/");
   }
 
   const refreshData = async () => {
-    // await checkSession();
     refetch();
   };
-
-  // useEffect(() => {
-  //   if (sessionChecked) {
-  //     queryClient.invalidateQueries(["questions"]);
-  //   }
-  // }, [sessionChecked])
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -54,14 +42,14 @@ export default function Questions() {
   if (error instanceof Error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="h-screen mt-[60px] bg-beige relative">
+    <div className="h-screen bg-beige relative">
       <img src="../src/assets/bg-questions.png" alt="Jumbotron Background" className="absolute inset-0 w-full h-full object-cover" />
       <div className="relative">
         <div className="mx-auto">
           <h2 className="text-4xl font-bold text-center pb-5 pt-5">My Questions</h2>
           <div className="w-[200px] border-t-[4px] border-navy mx-auto"></div>
         </div>
-        <div className="flex-col flex w-max w-8/12 mx-auto">
+        <div className="flex-col flex w-8/12 mx-auto">
           <CreateQuestionModal/>
           {questions ? (
             <div>
@@ -78,7 +66,7 @@ export default function Questions() {
                     </Button>
                     <div className="flex justify-between items-end mt-3">
                       <p className="text-black/[0.5]">{formatDate(question.created_at)}</p>
-                      <Button variant="outline" className="bg-navy text-white hover:bg-navy hover:text-white" onClick={() => navigate("/DetailQuestion")}>Open</Button>
+                      <Button variant="outline" className="bg-navy text-white hover:bg-navy hover:text-white" onClick={() => navigate(`/q/${question.slug}`)}>Open</Button>
                     </div>
                   </div>
                 </div>

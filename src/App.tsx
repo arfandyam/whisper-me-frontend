@@ -20,7 +20,7 @@ function App() {
               <Questions />
             </PrivateRoute>
           }/>
-          <Route path="/detailquestion" element={
+          <Route path="/q/:slug" element={
             <PrivateRoute>
               <DetailQuestion />
             </PrivateRoute>

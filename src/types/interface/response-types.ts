@@ -1,3 +1,8 @@
+export interface StatusMessageResponse {
+    status: string
+    message: string
+}
+
 export interface UserAuthResponse {
     id: string
     username: string
