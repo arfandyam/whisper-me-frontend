@@ -1,6 +1,6 @@
 // import { User } from "@/types/interface/auth-provider";
 import { User } from "@/types/interface/auth-provider";
-import { CreateQuestionInterface } from "@/types/interface/questions/payload-types";
+import { CreateQuestionInterface, EditQuestionInterface } from "@/types/interface/questions/payload-types";
 import { FindQuestionsBySlug, FindQuestionsByUserIdResponse } from "@/types/interface/questions/response-types";
 
 export const findQuestionsByUserId = async (userId: string | undefined, cursor: string | null): Promise<FindQuestionsByUserIdResponse> => {
@@ -50,7 +50,9 @@ export const findQuestionsBySlug = async (slug: string | undefined): Promise<Fin
     return question;
 }
 
-export const createQuestion = async ({ topic, question }: CreateQuestionInterface, accessToken: string | undefined): Promise<Response> => {
+export const createQuestion = async ({ topic, question }: CreateQuestionInterface): Promise<Response> => {
+    const user: User | null = JSON.parse(localStorage.getItem("user") || "null");
+    const accessToken = user?.accessToken;
     const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question`, {
         method: "POST",
         body: JSON.stringify({ topic, question }),
@@ -61,5 +63,20 @@ export const createQuestion = async ({ topic, question }: CreateQuestionInterfac
     });
 
     return response;
+}
 
+export const editQuestion = async ({ topic, question }: EditQuestionInterface, questionId: string): Promise<Response> => {
+    const user: User | null = JSON.parse(localStorage.getItem("user") || "null");
+    const accessToken = user?.accessToken;
+
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/${questionId}`, {
+        method: "PUT",
+        body: JSON.stringify({ topic, question }),
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        }
+    })
+
+    return response;
 }

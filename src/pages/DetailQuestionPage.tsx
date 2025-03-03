@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Copy } from 'lucide-react'
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import EditQuestionModal from "./EditQuestionModal";
 
 export default function DetailQuestion() {
   const navigate = useNavigate();
@@ -23,13 +24,13 @@ export default function DetailQuestion() {
   console.log("user detail question", user);
 
   const { data: question, isLoading: questionLoading, error: questionError } = useQuery(
-    ["question", user?.id],
+    ["question", user?.id, slug],
     async () => {
       user = await checkSession(user);
       return findQuestionsBySlug(slug);
     },
     {
-      enabled: !!user?.id,
+      enabled: !!user?.id && !!slug,
       retry: false,
       refetchOnWindowFocus: false,
     }
@@ -70,8 +71,14 @@ export default function DetailQuestion() {
             {question ? (
               <>
                 <div className="bg-white w-10/12 mt-4 border-2 mx-auto p-2 mb-4 rounded-lg shadow-md text-center">
+                  <EditQuestionModal
+                    questionIdProp={question.data.id}
+                    topicProp={question.data.topic}
+                    questionProp={question.data.question}
+                  />
                   <div className="mb-3">
                     <h2 className="font-bold text-2xl mb-3">{question?.data.topic}</h2>
+                    <p className="mb-3">{question?.data.question}</p>
                     <a href={`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/q/${question?.data.url_key}`}>{`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/q/${question?.data.url_key}`}</a>
                     <Button type="submit" size="sm" className="ml-3 px-3 text-black bg-white border-2 hover:text-white"
                       onClick={async () => await navigator.clipboard.writeText(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/q/${question?.data.url_key}`)}

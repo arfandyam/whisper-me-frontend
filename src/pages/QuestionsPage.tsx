@@ -57,6 +57,7 @@ export default function Questions() {
                 <div className="bg-white mt-4 border-2 mx-auto p-2 mb-4 rounded-lg shadow-md">
                   <div className="mb-3">
                     <h2 className="font-bold text-2xl mb-3">{question.topic}</h2>
+                    <p className="mb-3">{question.question}</p>
                     <a href={`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/q/${question.url_key}`}>{`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/q/${question.url_key}`}</a>
                     <Button size="sm" className="ml-3 px-3 text-black bg-white border-2 hover:text-white"
                       onClick={async () => await navigator.clipboard.writeText(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:${import.meta.env.VITE_PORT}/q/${question.url_key}`)}

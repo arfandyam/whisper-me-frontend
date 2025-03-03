@@ -41,7 +41,7 @@ export default function CreateQuestionModal() {
     question
   }: CreateQuestionInterface) {
     user = await checkSession(user);
-    const response = await createQuestion({ topic, question }, user?.accessToken);
+    const response = await createQuestion({ topic, question });
     const questionResponse: CreateQuestionResponse = await response.json();
     if (response.status == 201) {
       navigate(0);
