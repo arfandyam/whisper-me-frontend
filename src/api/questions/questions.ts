@@ -34,7 +34,27 @@ export const findQuestionsBySlug = async (slug: string | undefined): Promise<Fin
     const user: User | null = JSON.parse(localStorage.getItem("user") || "null");
     const accessToken = user?.accessToken;
 
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/${slug}`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/slug/${slug}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`
+        }
+    })
+
+    const question: FindQuestionsBySlug = await response.json();
+    if (!response.ok) {
+        console.error("Failed to fetch questions")
+    }
+
+    return question;
+}
+
+export const findQuestionsById = async (id: string | undefined): Promise<FindQuestionsBySlug> => {
+    const user: User | null = JSON.parse(localStorage.getItem("user") || "null");
+    const accessToken = user?.accessToken;
+
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/id/${id}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -77,6 +97,20 @@ export const editQuestion = async ({ topic, question }: EditQuestionInterface, q
             Authorization: `Bearer ${accessToken}`
         }
     })
+
+    return response;
+}
+
+export const redirectShortenUrl = async (urlKey: string | undefined): Promise<Response> => {
+
+    console.log(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/r/${urlKey}`)
+
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/r/${urlKey}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        }
+    });
 
     return response;
 }

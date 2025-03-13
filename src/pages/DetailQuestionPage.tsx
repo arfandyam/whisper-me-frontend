@@ -1,5 +1,5 @@
 import { findAnswersByQuestionId } from "@/api/answers/answers";
-import { findQuestionsBySlug } from "@/api/questions/questions";
+import { findQuestionsById } from "@/api/questions/questions";
 import { checkSession } from "@/api/sessions/session";
 import { Button } from "@/components/ui/button"
 import { formatDate } from "@/lib/utils";
@@ -12,7 +12,7 @@ import EditQuestionModal from "./EditQuestionModal";
 
 export default function DetailQuestion() {
   const navigate = useNavigate();
-  const { slug } = useParams();
+  const { questionId } = useParams();
   const [cursor, setCursor] = useState<string | null>(null);
 
   // Get user session
@@ -24,13 +24,13 @@ export default function DetailQuestion() {
   console.log("user detail question", user);
 
   const { data: question, isLoading: questionLoading, error: questionError, refetch: questionRefetch } = useQuery(
-    ["question", user?.id, slug],
+    ["question", user?.id, questionId],
     async () => {
       user = await checkSession(user);
-      return findQuestionsBySlug(slug);
+      return findQuestionsById(questionId);
     },
     {
-      enabled: !!user?.id && !!slug,
+      enabled: !!user?.id && !!questionId,
       retry: false,
       refetchOnWindowFocus: false,
     }
@@ -39,13 +39,13 @@ export default function DetailQuestion() {
   console.log("question", question)
 
   const { data: answers, isLoading: answerLoading, error: answerError, refetch: answerRefetch } = useQuery(
-    ["answers", user?.id, question?.data.id, cursor],
+    ["answers", user?.id, questionId, cursor],
     async () => {
       user = await checkSession(user);
-      return findAnswersByQuestionId(question?.data.id, cursor);
+      return findAnswersByQuestionId(questionId, cursor);
     },
     {
-      enabled: !!user?.id && !!question?.data.id,
+      enabled: !!user?.id && !!questionId,
       retry: false,
       refetchOnWindowFocus: false,
     }
