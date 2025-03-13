@@ -6,11 +6,12 @@ import AddResponse from './pages/AddResponsePage';
 import Navbar from '../src/layout/Navbar';
 import SignUpPage from './pages/SignUpPage';
 import PrivateRoute from './PrivateRoute';
+import RedirectShortenUrl from './pages/RedirectShortenUrl';
 
 function App() {
   return (
     <Router>
-      <Navbar/>
+      <Navbar />
       <div>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -19,16 +20,17 @@ function App() {
             <PrivateRoute>
               <Questions />
             </PrivateRoute>
-          }/>
-          <Route path="/q/:slug" element={
+          } />
+          <Route path="/question/:slug" element={
             <PrivateRoute>
               <DetailQuestion />
             </PrivateRoute>
           } />
-          <Route path="/addresponse" element={
-            <PrivateRoute>
-              <AddResponse />
-            </PrivateRoute>
+          <Route path="/q/:urlKey" element={
+            <RedirectShortenUrl />
+          } />
+          <Route path="/question/:slug/response" element={
+            <AddResponse />
           } />
         </Routes>
       </div>

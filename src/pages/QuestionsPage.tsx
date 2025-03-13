@@ -67,7 +67,7 @@ export default function Questions() {
                     </Button>
                     <div className="flex justify-between items-end mt-3">
                       <p className="text-black/[0.5]">{formatDate(question.created_at)}</p>
-                      <Button variant="outline" className="bg-navy text-white hover:bg-navy hover:text-white" onClick={() => navigate(`/q/${question.slug}`)}>Open</Button>
+                      <Button variant="outline" className="bg-navy text-white hover:bg-navy hover:text-white" onClick={() => navigate(`/question/${question.slug}`)}>Open</Button>
                     </div>
                   </div>
                 </div>

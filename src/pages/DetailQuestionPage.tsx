@@ -23,7 +23,7 @@ export default function DetailQuestion() {
 
   console.log("user detail question", user);
 
-  const { data: question, isLoading: questionLoading, error: questionError } = useQuery(
+  const { data: question, isLoading: questionLoading, error: questionError, refetch: questionRefetch } = useQuery(
     ["question", user?.id, slug],
     async () => {
       user = await checkSession(user);
@@ -36,7 +36,9 @@ export default function DetailQuestion() {
     }
   )
 
-  const { data: answers, isLoading: answerLoading, error: answerError, refetch } = useQuery(
+  console.log("question", question)
+
+  const { data: answers, isLoading: answerLoading, error: answerError, refetch: answerRefetch } = useQuery(
     ["answers", user?.id, question?.data.id, cursor],
     async () => {
       user = await checkSession(user);
@@ -50,10 +52,9 @@ export default function DetailQuestion() {
   )
 
   const refreshData = async () => {
-    refetch();
+    answerRefetch();
   };
 
-  console.log("question", question)
   console.log("answers", answers)
 
   if (questionLoading || answerLoading) {
@@ -72,6 +73,7 @@ export default function DetailQuestion() {
               <>
                 <div className="bg-white w-10/12 mt-4 border-2 mx-auto p-2 mb-4 rounded-lg shadow-md text-center">
                   <EditQuestionModal
+                    questionRefetch={questionRefetch}
                     questionIdProp={question.data.id}
                     topicProp={question.data.topic}
                     questionProp={question.data.question}

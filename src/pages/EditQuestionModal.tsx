@@ -9,8 +9,9 @@ import { cn } from "@/lib/utils";
 import { EditQuestionBodyValidator, TEditQuestionBodyValidator } from "@/lib/validators/questions/question";
 import { User } from "@/types/interface/auth-provider";
 import { EditQuestionInterface } from "@/types/interface/questions/payload-types";
-import { EditQuestionResponse } from "@/types/interface/questions/response-types";
+import { EditQuestionResponse, FindQuestionsBySlug } from "@/types/interface/questions/response-types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { QueryObserverResult, } from "@tanstack/react-query";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -20,10 +21,12 @@ interface EditQuestionModalProps {
   questionIdProp: string
   topicProp: string
   questionProp: string
+  questionRefetch: () => Promise<QueryObserverResult<FindQuestionsBySlug, unknown>>
 }
 
 export default function EditQuestionModal(props: EditQuestionModalProps) {
-  const { questionIdProp, topicProp, questionProp } = props;
+  // const queryClient = useQueryClient();
+  const { questionIdProp, topicProp, questionProp, questionRefetch } = props;
   let user: User | null = JSON.parse(localStorage.getItem("user") || "null");
   const navigate = useNavigate();
   const {
@@ -34,6 +37,7 @@ export default function EditQuestionModal(props: EditQuestionModalProps) {
     resolver: zodResolver(EditQuestionBodyValidator),
   });
 
+  const [open, setOpen] = useState<boolean>(false);
   const [topic, setTopic] = useState<string>(topicProp);
   const [question, setQuestion] = useState<string>(questionProp);
 
@@ -45,7 +49,10 @@ export default function EditQuestionModal(props: EditQuestionModalProps) {
     const response = await editQuestion({ topic, question }, questionIdProp);
     const editQuestionResponse: EditQuestionResponse = await response.json();
     if (response.status == 200) {
-      navigate(`/q/${editQuestionResponse.data.slug}`);
+      // queryClient.invalidateQueries(["question", user?.id], )
+      await questionRefetch();
+      navigate(`/question/${editQuestionResponse.data.slug}`, { replace: true });
+      setOpen(false);
     } else if (response.status == 400) {
       console.error(`Failed to create question. message: ${editQuestionResponse.message}`);
     }
@@ -54,7 +61,7 @@ export default function EditQuestionModal(props: EditQuestionModalProps) {
   return (
     <>
       <div className="flex justify-end">
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="bg-navy text-white right-0"><Pencil className="mr-3" />Edit Question</Button>
           </DialogTrigger>
@@ -98,7 +105,7 @@ export default function EditQuestionModal(props: EditQuestionModalProps) {
                   </Button>
                 </DialogClose>
                 <Button type="submit" className="bg-dark-orange hover:dark-dark-orange" variant="secondary">
-                  Create
+                  Edit
                 </Button>
               </DialogFooter>
             </form>
