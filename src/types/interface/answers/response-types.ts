@@ -1,4 +1,5 @@
 import { QuestionsMeta } from "../questions/response-types"
+import { StatusMessageResponse } from "../response-types"
 
 export interface AnswersDTO {
     id: string
@@ -10,4 +11,9 @@ export interface AnswersDTO {
 export interface FindAnswersByQuestionId {
     data: AnswersDTO[]
     meta: QuestionsMeta
+}
+
+export interface CreateAnswer extends StatusMessageResponse {
+    data: AnswersDTO
+    description?: string
 }

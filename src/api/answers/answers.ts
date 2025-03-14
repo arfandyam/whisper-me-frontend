@@ -8,9 +8,9 @@ export const findAnswersByQuestionId = async (questionId: string | undefined, cu
     const accessToken = user?.accessToken
 
     if (cursor != null) {
-        url = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/response/${questionId}?cursor=${cursor}`
+        url = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/${questionId}/response?cursor=${cursor}`
     } else {
-        url = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/response/${questionId}`
+        url = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/${questionId}/response`
     }
 
     const response = await fetch(url, {
@@ -28,4 +28,16 @@ export const findAnswersByQuestionId = async (questionId: string | undefined, cu
 
     console.log("answers dari fungsi fetch", answers)
     return answers;
+}
+
+export const createAnswer = async (response: string, questionId: string | undefined): Promise<Response> => {
+    const createAnswerResponse = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/${questionId}/response`, {
+        method: "POST",
+        body: JSON.stringify({ response }),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+
+    return createAnswerResponse;
 }

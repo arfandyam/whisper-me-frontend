@@ -24,6 +24,10 @@ export interface FindQuestionsBySlug {
     data: QuestionsData
 }
 
+export interface FindQuestionSlugByUrlKey extends StatusMessageResponse {
+    data: Pick<QuestionsData, 'slug'>
+}
+
 // FindQuestionsByUserId
 export interface FindQuestionsByUserIdResponse extends StatusMessageResponse {
     data: QuestionsData[]

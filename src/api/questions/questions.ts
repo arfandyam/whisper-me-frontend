@@ -31,14 +31,10 @@ export const findQuestionsByUserId = async (userId: string | undefined, cursor: 
 }
 
 export const findQuestionsBySlug = async (slug: string | undefined): Promise<FindQuestionsBySlug> => {
-    const user: User | null = JSON.parse(localStorage.getItem("user") || "null");
-    const accessToken = user?.accessToken;
-
     const response = await fetch(`${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/slug/${slug}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`
         }
     })
 
