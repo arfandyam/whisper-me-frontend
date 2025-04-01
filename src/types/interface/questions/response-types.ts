@@ -13,6 +13,8 @@ export interface QuestionsData {
 export interface QuestionsMeta {
     next_cursor: string
     prev_cursor: string
+    next_rank?: number
+    prev_rank?: number
 }
 
 export interface IdResponse {
@@ -33,6 +35,8 @@ export interface FindQuestionsByUserIdResponse extends StatusMessageResponse {
     data: QuestionsData[]
     meta: QuestionsMeta
 }
+
+export interface FindQuestionsByKeywordResponse extends FindQuestionsByUserIdResponse {}
 
 export interface CreateQuestionResponse extends StatusMessageResponse {
     data: IdResponse

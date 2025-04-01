@@ -1,9 +1,9 @@
 // import { User } from "@/types/interface/auth-provider";
 import { User } from "@/types/interface/auth-provider";
 import { CreateQuestionInterface, EditQuestionInterface } from "@/types/interface/questions/payload-types";
-import { FindQuestionsBySlug, FindQuestionsByUserIdResponse } from "@/types/interface/questions/response-types";
+import { FindQuestionsByKeywordResponse, FindQuestionsBySlug, FindQuestionsByUserIdResponse } from "@/types/interface/questions/response-types";
 
-export const findQuestionsByUserId = async (userId: string | undefined, cursor: string | null): Promise<FindQuestionsByUserIdResponse> => {
+export const findQuestionsByUserId = async (cursor: string | null): Promise<FindQuestionsByUserIdResponse> => {
     let url;
     const user: User | null = JSON.parse(localStorage.getItem("user") || "null");
     const accessToken = user?.accessToken
@@ -22,6 +22,33 @@ export const findQuestionsByUserId = async (userId: string | undefined, cursor: 
     });
 
     const questions: FindQuestionsByUserIdResponse = await response.json();
+
+    if (!response.ok) {
+        console.error("Failed to fetch questions")
+    }
+
+    return questions;
+}
+
+export const findQuestionsByKeyword = async(keyword: string | undefined, cursor: string | null, rank: number | undefined): Promise<FindQuestionsByKeywordResponse> => {
+    console.log("rank dari fungsi findQuestionsByKeyword", rank)
+    let url;
+    const user: User | null = JSON.parse(localStorage.getItem("user") || "null");
+    const accessToken = user?.accessToken
+    if (rank != null || cursor != null) {
+        url = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/search?keyword=${keyword}&&rank=${rank}&&cursor=${cursor}`
+    } else {
+        url = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/search?keyword=${keyword}`
+    }
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        }
+    });
+
+    const questions: FindQuestionsByKeywordResponse = await response.json();
 
     if (!response.ok) {
         console.error("Failed to fetch questions")
