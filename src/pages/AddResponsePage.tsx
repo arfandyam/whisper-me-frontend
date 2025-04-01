@@ -64,7 +64,7 @@ export default function AddResponse() {
   if (questionError instanceof Error) return <div>Error: Question Error {questionError.message}</div>;
   if (userError instanceof Error) return <div>Error: Question Error {userError.message}</div>;
   return (
-    <div className="h-screen bg-beige relative mb-5">
+    <div className="h-screen bg-beige relative">
       <img src="/bg-questions.png" alt="Jumbotron Background" className="fixed top-0 left-0 w-full h-full object-cover" />
       <div className="relative mt-5">
         <Card className="w-[500px] mx-auto">

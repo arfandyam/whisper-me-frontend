@@ -51,7 +51,7 @@ export default function CreateQuestionModal() {
   }
 
   return (
-    <div className="flex justify-end">
+    <div className="absolute right-0">
       <Dialog>
         <DialogTrigger asChild>
           <Button className="bg-navy text-white right-0"><Plus className="mr-3" />Create New Question</Button>
