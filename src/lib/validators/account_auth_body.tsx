@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const AuthBodyValidator = z.object({
-    email: z.string(),
+    username: z.string(),
     password: z.string().min(8, {
         message: "minimal password lebih dari 8 karakter."
     })
