@@ -13,6 +13,8 @@ export interface FindAnswersByQuestionId {
     meta: QuestionsMeta
 }
 
+export interface FindAnswersByKeyword extends FindAnswersByQuestionId {}
+
 export interface CreateAnswer extends StatusMessageResponse {
     data: AnswersDTO
     description?: string

@@ -47,7 +47,8 @@ export default function Questions() {
   console.log("keyword", keyword)
   const refreshData = async () => {
     setKeyword(searchInput);
-    setCursor(null)
+    setCursor(null);
+    setRank(undefined);
   };
 
   // let prev: string | number | null = null, next: string | number | null = null

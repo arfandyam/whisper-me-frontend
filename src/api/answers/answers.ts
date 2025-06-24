@@ -1,4 +1,4 @@
-import { FindAnswersByQuestionId } from "@/types/interface/answers/response-types";
+import { FindAnswersByKeyword, FindAnswersByQuestionId } from "@/types/interface/answers/response-types";
 import { User } from "@/types/interface/auth-provider";
 
 export const findAnswersByQuestionId = async (questionId: string | undefined, cursor: string | null): Promise<FindAnswersByQuestionId> => {
@@ -28,6 +28,32 @@ export const findAnswersByQuestionId = async (questionId: string | undefined, cu
 
     console.log("answers dari fungsi fetch", answers)
     return answers;
+}
+
+export const findAnswersByKeyword = async(keyword: string | undefined, cursor: string | null, rank: number | undefined, questionId: string | undefined): Promise<FindAnswersByKeyword> => {
+    let url;
+    const user: User | null = JSON.parse(localStorage.getItem("user") || "null");
+    const accessToken = user?.accessToken
+    if (rank != null || cursor != null) {
+        url = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/${questionId}/response/search?keyword=${keyword}&&rank=${rank}&&cursor=${cursor}`
+    } else {
+        url = `${import.meta.env.VITE_BACKEND_PROTOCOL}://${import.meta.env.VITE_BACKEND_HOST}:${import.meta.env.VITE_BACKEND_PORT}/question/${questionId}/response/search?keyword=${keyword}`
+    }
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        }
+    });
+
+    const questions: FindAnswersByKeyword = await response.json();
+
+    if (!response.ok) {
+        console.error("Failed to fetch questions")
+    }
+
+    return questions;
 }
 
 export const createAnswer = async (response: string, questionId: string | undefined): Promise<Response> => {

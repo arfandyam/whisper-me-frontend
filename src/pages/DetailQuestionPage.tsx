@@ -1,19 +1,23 @@
-import { findAnswersByQuestionId } from "@/api/answers/answers";
+import { findAnswersByKeyword, findAnswersByQuestionId } from "@/api/answers/answers";
 import { findQuestionsById } from "@/api/questions/questions";
 import { checkSession } from "@/api/sessions/session";
 import { Button } from "@/components/ui/button"
 import { formatDate } from "@/lib/utils";
 import { User } from "@/types/interface/auth-provider";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Copy } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Copy, Search } from 'lucide-react'
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import EditQuestionModal from "./EditQuestionModal";
+import { Input } from "@/components/ui/input";
 
 export default function DetailQuestion() {
   const navigate = useNavigate();
   const { questionId } = useParams();
   const [cursor, setCursor] = useState<string | null>(null);
+  const [rank, setRank] = useState<number | undefined>();
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [keyword, setKeyword] = useState<string>("");
 
   // Get user session
   let user: User | null = JSON.parse(localStorage.getItem("user") || "null");
@@ -38,10 +42,13 @@ export default function DetailQuestion() {
 
   console.log("question", question)
 
-  const { data: answers, isLoading: answerLoading, error: answerError, refetch: answerRefetch } = useQuery(
-    ["answers", user?.id, questionId, cursor],
+  const { data: answers, isLoading: answerLoading, error: answerError } = useQuery(
+    ["answers", user?.id, questionId, cursor, keyword, rank],
     async () => {
       user = await checkSession(user);
+      if (keyword != "") {
+        return findAnswersByKeyword(keyword, cursor, rank, questionId);
+      }
       return findAnswersByQuestionId(questionId, cursor);
     },
     {
@@ -52,7 +59,10 @@ export default function DetailQuestion() {
   )
 
   const refreshData = async () => {
-    answerRefetch();
+    // answerRefetch();
+    setKeyword(searchInput);
+    setCursor(null);
+    setRank(undefined);
   };
 
   console.log("answers", answers)
@@ -90,43 +100,71 @@ export default function DetailQuestion() {
                     </Button>
                     <div className="flex justify-between items-end mt-3">
                       <p className="text-black/[0.5]">{formatDate(question.data.created_at)}</p>
-                      <p><span className="font-bold">{answers?.data.length}</span> responders</p>
+                      {answers?.data ? (
+                        <p><span className="font-bold">{answers?.data.length}</span> responders</p>
+                      ) : <p><span className="font-bold">0</span> responders</p>}
                     </div>
                   </div>
                 </div>
               </>
             ) : null}
-            {answers?.data.map((answer) => (
-              <div className="bg-white mt-4 border-2 w-8/12 mx-auto p-4 mb-4 rounded-lg shadow-md">
-                <div className="mb-3">
-                  <p>{answer.response}</p>
-                  <div className="flex justify-between items-end mt-3">
-                    <p className="text-black/[0.5]">{formatDate(answer.created_at)}</p>
-                  </div>
-                </div>
+            <div className="bg-white mt-4 border-2 p-5 mb-4 rounded-lg shadow-md flex-col flex w-10/12 mx-auto">
+              <div className="relative w-full max-w-xs">
+                <Input
+                  className="pr-10" // Adds right padding so text doesn't overlap the icon
+                  placeholder="Search..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                />
+                <Button
+                  variant="ghost"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent hover:bg-gray-200 p-2 rounded-full"
+                  onClick={() => refreshData()}
+                >
+                  <Search className="w-5 h-5" />
+                </Button>
               </div>
-            ))}
-            <div className="relative items-center mx-auto p-4 w-8/12">
-              {answers?.meta.prev_cursor ? (
-                <Button size="sm" className="absolute left-0 px-3 text-black bg-white border-2 hover:bg-beige"
-                  onClick={() => {
-                    setCursor(answers.meta.prev_cursor);
-                    refreshData();
-                  }}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-              ) : null}
-              {answers?.meta.next_cursor ? (
-                <Button size="sm" className="absolute right-0 px-3 text-black bg-white border-2 hover:bg-beige"
-                  onClick={() => {
-                    setCursor(answers.meta.next_cursor);
-                    refreshData();
-                  }}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              ) : null}
+              {answers?.data ? (
+                <>
+                  {answers?.data.map((answer) => (
+                    <div className="bg-white mt-4 border-2 border-l-0 border-r-0 w-full p-4 mb-4 items-start">
+                      <div className="mb-3">
+                        <p>{answer.response}</p>
+                        <div className="flex justify-between items-end mt-3">
+                          <p className="text-black/[0.5]">{formatDate(answer.created_at)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex justify-between mt-3 relative items-center p-4">
+                    {/* <div className="relative items-center mx-auto p-4 w-8/12"> */}
+                    {answers?.meta.prev_cursor ? (
+                      <Button size="sm" className="absolute left-0 px-3 text-black bg-white border-2 hover:bg-beige"
+                        onClick={() => {
+                          setCursor(answers.meta.prev_cursor);
+                          setRank(answers.meta.prev_rank);
+                        }}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                    ) : null}
+                    {answers?.meta.next_cursor ? (
+                      <Button size="sm" className="absolute right-0 px-3 text-black bg-white border-2 hover:bg-beige"
+                        onClick={() => {
+                          setCursor(answers.meta.next_cursor);
+                          setRank(answers.meta.next_rank);
+                        }}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    ) : null}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="mt-4">Data tidak ditemukan</p>
+                </>
+              )}
             </div>
           </div>
         </div>
